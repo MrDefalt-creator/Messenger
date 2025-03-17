@@ -1,0 +1,53 @@
+    .email-input {
+        width: 100%;
+        padding: 15px 15px;
+        border-radius: 12px;
+        font-size: 1rem;
+        position: relative;
+    }
+
+    .email-input:focus {
+        border: 2px solid #14b8a6; /* Цвет границы при фокусе */
+        outline: none; /* Убаран стандартный контур */
+        transition: all 0.3s ease;
+    }
+
+    .email-input:hover {
+        border: 2px solid #14b8a6; /* Цвет границы при наведении */
+    }
+
+    .email-input:hover + .name-of-input,
+    .name-of-input.focused {
+        color: #14b8a6; /* Цвет текста label при наведении на input или при фокусе */
+    }
+
+    .name-of-input {
+        position: absolute;
+        left: 15px;
+        padding: 2px;
+        color: #3a3a3a;
+        pointer-events: none; /* Позволяет кликам проходить через label */
+        transition: all 0.3s ease; /*  Плавный переход для цвета */
+    }
+
+    .checkbox-container {
+        display: flex;
+        width: 100%;
+        padding: 0 19px;
+        position: relative;
+    }
+
+    .auth-p {
+        margin-left: 15px;
+    }
+
+    .next-button {
+        margin-top: 2.75rem;
+        height: 3.5rem;
+        width: 100%;
+        padding: 0.625rem;
+        border-radius: 20px;
+    }
+    .bg-darker{
+        background-color: #5f5f5f59;
+    }
