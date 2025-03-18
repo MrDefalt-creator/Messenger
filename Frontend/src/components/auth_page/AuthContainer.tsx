@@ -12,7 +12,7 @@ export default function AuthContainer({children}: {children: React.ReactNode}) {
             <p className='font-sans text-slate-400 text-base font-normal'>
                 Введите ваши данные для работы в ChatMe
             </p>
-            <div className="mt-[49px] mx-auto grid grid-cols-1 gap-6">
+            <div className="mt-[49px] items-center w-full grid grid-cols-1 gap-6">
                 {children}
             </div>
         </section>
