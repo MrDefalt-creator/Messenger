@@ -1,16 +1,20 @@
+@import "tailwindcss";
+
 .auth-input {
     width: 100%;
-    padding: 15px 15px;
+    padding: 12px;
+    border: 2px solid #00bba7;
     border-radius: 12px;
-    font-size: 1rem;
-    position: relative;
+    font-family: sans-serif;
+    z-index: 10;
 }
 
-.auth-input:focus {
-    border: 2px solid #14b8a6;
+.auth-input:focus{
     outline: none;
-    transition: all 0.3s ease;
+    border-color: #009689;
+    transition: border-color 0.2s ease-in-out;
 }
+
 
 .auth-input:hover {
     border: 2px solid #14b8a6;
