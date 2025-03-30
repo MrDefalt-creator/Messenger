@@ -1,3 +1,6 @@
+using Backend.Configuration;
+using Microsoft.EntityFrameworkCore;
+
 namespace Backend;
 
 public class Program
@@ -13,6 +16,11 @@ public class Program
         builder.Services.AddOpenApi();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        builder.Services.AddDbContext<MessengerContext>(options =>
+        {
+            options.UseNpgsql(builder.Configuration["ConnectionStrings:DbConnectionString"]);
+        });
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
