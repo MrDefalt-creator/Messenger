@@ -4,7 +4,7 @@ namespace Backend.Endpoints;
 
 public static class UserEndpoints
 {
-    public static IEndpointRouteBuilder MapUserEnpoints(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapUserEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapPost("register", Register);
         app.MapPost("login", Login);

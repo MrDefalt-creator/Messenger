@@ -132,3 +132,11 @@ D:\Projects\Messenger\Backend\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.Workspa
 D:\Projects\Messenger\Backend\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 D:\Projects\Messenger\Backend\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 D:\Projects\Messenger\Backend\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+D:\Projects\Messenger\Backend\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\Projects\Messenger\Backend\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
+D:\Projects\Messenger\Backend\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
+D:\Projects\Messenger\Backend\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
+D:\Projects\Messenger\Backend\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.dll
+D:\Projects\Messenger\Backend\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+D:\Projects\Messenger\Backend\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
+D:\Projects\Messenger\Backend\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll

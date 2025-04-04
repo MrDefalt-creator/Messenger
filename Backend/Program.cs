@@ -1,5 +1,11 @@
 using Backend.Configuration;
+using Backend.Endpoints;
+using Backend.Extensions;
+using Backend.Interfaces.Auth;
+using Backend.Options;
+using Backend.Providers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Backend;
 
@@ -8,19 +14,25 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
+        var configuration = builder.Configuration;
+        var services = builder.Services;
         // Add services to the container.
         builder.Services.AddAuthorization();
-
+        builder.Services.AddAuthentication();
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        
         builder.Services.AddDbContext<MessengerContext>(options =>
         {
             options.UseNpgsql(builder.Configuration["ConnectionStrings:DbConnectionString"]);
         });
-
+        
+        builder.Services.AddApiAuthentication(builder.Services.BuildServiceProvider().GetRequiredService<IOptions<JwtOptions>>());
+        
+        services.AddScoped<IJwtProvider, JwtProvider>();
+        
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -33,26 +45,11 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        app.UseAuthentication();
         app.UseAuthorization();
+        
 
-        var summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
-        app.MapGet("/weatherforecast", (HttpContext httpContext) =>
-            {
-                var forecast = Enumerable.Range(1, 5).Select(index =>
-                        new WeatherForecast
-                        {
-                            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                            TemperatureC = Random.Shared.Next(-20, 55),
-                            Summary = summaries[Random.Shared.Next(summaries.Length)]
-                        })
-                    .ToArray();
-                return forecast;
-            })
-            .WithName("GetWeatherForecast");
+        app.AddMappedEndpoints();
 
         app.Run();
     }
