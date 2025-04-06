@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "ArmOTgPHkvE=",
+  "dgSpecHash": "dbMi/yC7JlY=",
   "success": true,
   "projectFilePath": "D:\\Projects\\Messenger\\Backend\\Backend.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\defal\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\defal\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\defal\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\9.0.3\\microsoft.aspnetcore.authentication.jwtbearer.9.0.3.nupkg.sha512",
     "C:\\Users\\defal\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.3\\microsoft.aspnetcore.openapi.9.0.3.nupkg.sha512",

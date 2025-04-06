@@ -2,7 +2,9 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Backend.Configuration;
 using Backend.Interfaces.Auth;
+using Backend.Interfaces.Repositories;
 using Backend.Models;
 using Backend.Options;
 using Microsoft.Extensions.Options;
@@ -13,6 +15,7 @@ namespace Backend.Providers;
 public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
 {
     private readonly JwtOptions _options = options.Value;
+
     
     public string GenerateJwtToken(Usr user)
     {
@@ -28,7 +31,7 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
         var token = new JwtSecurityToken(
             claims: claims,
             signingCredentials: signingCredentials,
-            expires: DateTime.UtcNow.AddHours(_options.ExpiresIn)
+            expires: DateTime.UtcNow.AddDays(_options.ExpiresIn)
         );
         
         var tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
@@ -36,10 +39,10 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
         return tokenValue;
     }
 
-    public string GenerateJwtRefreshToken(Usr user)
+    public string GenerateJwtRefreshToken()
     {
         var randomNumber = new byte[32];
-
+        
         using (var rng = RandomNumberGenerator.Create())
         {
             rng.GetBytes(randomNumber);

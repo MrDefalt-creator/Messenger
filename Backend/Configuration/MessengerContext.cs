@@ -7,11 +7,8 @@ using File = Backend.Models.File;
 
 namespace Backend.Configuration;
 
-public partial class MessengerContext : DbContext
+public partial class MessengerContext(DbContextOptions<MessengerContext> options) : DbContext(options)
 {
-    public MessengerContext(DbContextOptions<MessengerContext> options) 
-        : base(options) { }
-
     public virtual DbSet<BlockList> BlockLists { get; set; }
 
     public virtual DbSet<Chat> Chats { get; set; }
@@ -23,7 +20,6 @@ public partial class MessengerContext : DbContext
     public virtual DbSet<Message> Messages { get; set; }
 
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
-
     public virtual DbSet<Usr> Usrs { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -170,7 +166,7 @@ public partial class MessengerContext : DbContext
 
             entity.Property(e => e.TokenId).HasColumnName("token_id");
             entity.Property(e => e.CreatedAt)
-                .HasColumnType("timestamp without time zone")
+                .HasColumnType("timestamp with time zone")
                 .HasColumnName("created_at");
             entity.Property(e => e.IsRevoked)
                 .HasDefaultValue(false)

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Models;
 
 public partial class Usr
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int UsrId { get; set; }
 
     public string? Login { get; set; }

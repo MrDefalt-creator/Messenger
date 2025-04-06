@@ -1,9 +1,13 @@
 using Backend.Configuration;
 using Backend.Endpoints;
 using Backend.Extensions;
+using Backend.Infrastructure;
 using Backend.Interfaces.Auth;
+using Backend.Interfaces.Repositories;
 using Backend.Options;
 using Backend.Providers;
+using Backend.Repositories;
+using Backend.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -23,6 +27,7 @@ public class Program
         builder.Services.AddOpenApi();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        builder.Services.AddHttpContextAccessor();
         
         builder.Services.AddDbContext<MessengerContext>(options =>
         {
@@ -32,7 +37,11 @@ public class Program
         builder.Services.AddApiAuthentication(builder.Services.BuildServiceProvider().GetRequiredService<IOptions<JwtOptions>>());
         
         services.AddScoped<IJwtProvider, JwtProvider>();
-        
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddTransient<UserService>();
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.

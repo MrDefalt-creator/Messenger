@@ -140,3 +140,4 @@ D:\Projects\Messenger\Backend\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols
 D:\Projects\Messenger\Backend\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 D:\Projects\Messenger\Backend\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
 D:\Projects\Messenger\Backend\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
+D:\Projects\Messenger\Backend\bin\Debug\net9.0\BCrypt.Net-Next.dll
