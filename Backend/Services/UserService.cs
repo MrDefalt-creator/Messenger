@@ -1,9 +1,8 @@
 ﻿using Backend.Configuration;
-using Backend.Infrastructure;
 using Backend.Interfaces.Auth;
 using Backend.Interfaces.Repositories;
 using Backend.Models;
-using Backend.Repositories;
+
 
 namespace Backend.Services;
 
@@ -86,6 +85,27 @@ public class UserService
         
         _httpContextAccessor.HttpContext?.Response.Cookies.Append("JWT", _jwtProvider.GenerateJwtToken(user), cookieOptions);
         
+    }
+
+    public async Task UpdateJwtToken(int userId, bool rememberMe)
+    {
+        var user = await _userRepository.GetUserById(userId);
         
+        if (user == null)
+        {
+            throw new Exception("Пользователь не найден");
+        }
+
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTime.UtcNow.AddDays(30)
+        };
+        if (rememberMe)
+        {
+            _httpContextAccessor.HttpContext?.Response.Cookies.Append("JWT", _jwtProvider.GenerateJwtToken(user), cookieOptions);
+        }
     }
 }

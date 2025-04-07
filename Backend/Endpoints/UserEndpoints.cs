@@ -2,6 +2,7 @@
 using Backend.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Backend.Endpoints;
 
@@ -11,6 +12,7 @@ public static class UserEndpoints
     {
         app.MapPost("register", Register);
         app.MapPost("login", Login);
+        app.MapPost("jwtUpdate", UpdateJwt);
 
         return app;
     }
@@ -24,6 +26,12 @@ public static class UserEndpoints
     private static async Task<IResult> Login([FromBody] UserLoginRequest request, UserService service)
     {
         await service.Login(request.email, request.password, request.rememberMe);
+        return Results.Ok();
+    }
+
+    private static async Task<IResult> UpdateJwt([FromBody] UserJwtUpdateRequest request, UserService service)
+    {
+        await service.UpdateJwtToken(request.UserId, request.RememberMe);
         return Results.Ok();
     }
 }

@@ -40,8 +40,9 @@ public class Program
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IGetUserFromClaims, GetUserFromClaims>();
         services.AddTransient<UserService>();
-
+        
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
