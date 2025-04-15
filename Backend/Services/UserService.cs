@@ -1,4 +1,6 @@
-﻿using Backend.Configuration;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Backend.Configuration;
 using Backend.Interfaces.Auth;
 using Backend.Interfaces.Repositories;
 using Backend.Models;
@@ -47,7 +49,7 @@ public class UserService
         
     }
 
-    public async Task Login(string email, string password, bool rememberMe)
+    public async Task<string> Login(string email, string password, bool rememberMe)
     {
         var user = await _userRepository.GetUserByEmail(email);
 
@@ -67,7 +69,7 @@ public class UserService
             var refreshToken = new RefreshToken
             {
                 UsrId = user.UsrId,
-                Token = _jwtProvider.GenerateJwtRefreshToken(),
+                Token = _jwtProvider.GenerateJwtRefreshToken(user),
                 
             }; 
             
@@ -83,29 +85,50 @@ public class UserService
             Expires = rememberMe ? DateTime.UtcNow.AddDays(30) : null,
         };
         
-        _httpContextAccessor.HttpContext?.Response.Cookies.Append("JWT", _jwtProvider.GenerateJwtToken(user), cookieOptions);
-        
+        var userRefreshToken = await _refreshTokenRepository.GetRefreshToken(user.UsrId);
+        if (userRefreshToken == null)
+        {
+            throw new Exception("Внутренняя ошибка");
+        }
+        _httpContextAccessor.HttpContext?.Response.Cookies.Append("JWTRefresh", userRefreshToken.Token, cookieOptions);
+        return _jwtProvider.GenerateJwtToken(user);
+
     }
 
-    public async Task UpdateJwtToken(int userId, bool rememberMe)
+    public async Task<string> UpdateJwtToken()
     {
-        var user = await _userRepository.GetUserById(userId);
-        
-        if (user == null)
+        var refreshToken = _httpContextAccessor.HttpContext?.Request.Cookies["JWTRefresh"];
+        if (refreshToken == null)
         {
-            throw new Exception("Пользователь не найден");
+            throw new Exception("Требуется авторизация");
         }
+        if (await _refreshTokenRepository.RefreshTokenExists(refreshToken))
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(refreshToken);
+            
+            var userIdClaim = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "userId");
+            if (userIdClaim == null)
+            {
+                throw new Exception("Не удалось извлечь userId");
+            }
+            int userId = int.Parse(userIdClaim.Value);
+            
+            var user = await _userRepository.GetUserById(userId);
+            if (user == null)
+            {
+                throw new Exception("Данного пользователя не существует");
+            }
+            
+            var newJwtToken = _jwtProvider.GenerateJwtToken(user);
 
-        var cookieOptions = new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Lax,
-            Expires = DateTime.UtcNow.AddDays(30)
-        };
-        if (rememberMe)
-        {
-            _httpContextAccessor.HttpContext?.Response.Cookies.Append("JWT", _jwtProvider.GenerateJwtToken(user), cookieOptions);
+            return newJwtToken;
         }
+        else
+        {
+            throw new Exception("Недействительный refresh token");
+        }
+        
+         
     }
 }

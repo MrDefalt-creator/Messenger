@@ -25,13 +25,13 @@ public static class UserEndpoints
 
     private static async Task<IResult> Login([FromBody] UserLoginRequest request, UserService service)
     {
-        await service.Login(request.email, request.password, request.rememberMe);
-        return Results.Ok();
+        var response = await service.Login(request.email, request.password, request.rememberMe);
+        return Results.Ok(response);
     }
 
-    private static async Task<IResult> UpdateJwt([FromBody] UserJwtUpdateRequest request, UserService service)
+    private static async Task<IResult> UpdateJwt(UserService service)
     {
-        await service.UpdateJwtToken(request.UserId, request.RememberMe);
-        return Results.Ok();
+        var updatedToken =  await service.UpdateJwtToken();
+        return Results.Ok(updatedToken);
     }
 }

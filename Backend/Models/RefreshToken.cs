@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Models;
 
-public partial class RefreshToken
+public class RefreshToken
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int TokenId { get; set; }

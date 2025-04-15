@@ -31,12 +31,12 @@ public static class ApiExtensions
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.SecretKey))
 
                 };
-
+                
                 options.Events = new JwtBearerEvents
                 {
                     OnMessageReceived = context =>
                     {
-                        context.Token = context.Request.Cookies["JWT"];
+                        context.Token = context.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", "");
 
                         return Task.CompletedTask;
                     }
