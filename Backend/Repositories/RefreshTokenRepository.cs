@@ -16,16 +16,16 @@ public class RefreshTokenRepository : IRefreshTokenRepository
     }
 
 
-    async public Task<bool> RefreshTokenExists(int userId)
+    public async Task<bool> RefreshTokenExists(int userId)
     {
-        return _dbContext.RefreshTokens.Any(rt => rt.UsrId == userId && rt.IsRevoked == false);
+        return await _dbContext.RefreshTokens.AnyAsync(rt => rt.UsrId == userId && rt.IsRevoked == false);
     }
 
-    async public Task<bool> RefreshTokenExists(string refreshToken)
+    public async Task<bool> RefreshTokenExists(string refreshToken)
     {
-        return _dbContext.RefreshTokens.Any(rt => rt.Token == refreshToken && rt.IsRevoked == false);
+        return await _dbContext.RefreshTokens.AnyAsync(rt => rt.Token == refreshToken && rt.IsRevoked == false);
     }
-    async public Task<RefreshToken?> GetRefreshToken(int userId)
+    public async Task<RefreshToken?> GetRefreshToken(int userId)
     {
         return await _dbContext.
             RefreshTokens.

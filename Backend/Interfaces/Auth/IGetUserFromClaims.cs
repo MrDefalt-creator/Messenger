@@ -2,5 +2,7 @@
 
 public interface IGetUserFromClaims
 {
-    int UserFromClaims();
+    int UserFromClaimsFromCookies();
+    
+    int UserFromClaimsFromHeaders();
 }

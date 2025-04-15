@@ -10,6 +10,7 @@ using Backend.Repositories;
 using Backend.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 
 namespace Backend;
 
@@ -26,7 +27,34 @@ public class Program
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Введите токен в формате: Bearer {your JWT token}"
+            });
+            
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
+
+        });
         builder.Services.AddHttpContextAccessor();
         
         builder.Services.AddDbContext<MessengerContext>(options =>
@@ -34,7 +62,7 @@ public class Program
             options.UseNpgsql(builder.Configuration["ConnectionStrings:DbConnectionString"]);
         });
         
-        builder.Services.AddApiAuthentication(builder.Services.BuildServiceProvider().GetRequiredService<IOptions<JwtOptions>>());
+        builder.Services.AddApiAuthentication(services.BuildServiceProvider().GetRequiredService<IOptions<JwtOptions>>());
         
         services.AddScoped<IJwtProvider, JwtProvider>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -42,6 +70,7 @@ public class Program
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IGetUserFromClaims, GetUserFromClaims>();
         services.AddTransient<UserService>();
+        services.AddTransient<ContactService>();
         
         var app = builder.Build();
 
@@ -58,7 +87,6 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
         
-
         app.AddMappedEndpoints();
 
         app.Run();

@@ -12,7 +12,7 @@ public static class UserEndpoints
     {
         app.MapPost("register", Register);
         app.MapPost("login", Login);
-        app.MapPost("jwtUpdate", UpdateJwt);
+        app.MapPost("jwt_update", UpdateJwt);
 
         return app;
     }
