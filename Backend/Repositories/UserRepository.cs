@@ -37,4 +37,13 @@ public class UserRepository : IUserRepository
             .AsNoTracking()
             .AnyAsync(u => u.UsrId == userId);
     }
+
+    public async Task<Usr?> GetUserWithContactsById(int userId)
+    {
+        return await _dbContext
+            .Usrs
+            .Include(u => u.ContactsNavigation)
+            .ThenInclude(c => c.Usrs)
+            .FirstOrDefaultAsync(u => u.UsrId == userId);
+    }
 }

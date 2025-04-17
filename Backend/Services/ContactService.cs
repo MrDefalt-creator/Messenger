@@ -28,17 +28,19 @@ public class ContactService
             throw new Exception("Добавляемый в контакты пользователь не найден");
         }
         
-        var user = await _userRepository.GetUserById(userId);
-        var contactUser = await _userRepository.GetUserById(contactId);
+        var user = await _userRepository.GetUserWithContactsById(userId);
+        var contactUser = await _userRepository.GetUserWithContactsById(contactId);
         /* Необходимо исправить не правильно создаются записи в таблицах, разобраться как работать
         через EF core со связью многие ко многим без явной модели в БД */
         var contact = new Contact
         {
-            ContactUser = user,
-            Usrs = new List<Usr> { contactUser }
+            ContactUser = user
         };
         
-        await _dbContext.Contacts.AddAsync(contact);
+        contact.Usrs.Add(contactUser);
+        
+        user.ContactsNavigation.Add(contact);
+
         await _dbContext.SaveChangesAsync();
 
     }
