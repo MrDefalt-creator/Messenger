@@ -38,7 +38,6 @@ public partial class MessengerContext : DbContext
             entity.Property(e => e.ChatId).HasColumnName("chat_id");
             entity.Property(e => e.ChatType)
                 .HasMaxLength(10)
-                .IsFixedLength()
                 .HasColumnName("chat_type");
             entity.Property(e => e.InitSenderId).HasColumnName("init_sender_id");
 
@@ -78,7 +77,6 @@ public partial class MessengerContext : DbContext
                 .HasColumnName("file_name");
             entity.Property(e => e.FileType)
                 .HasMaxLength(10)
-                .IsFixedLength()
                 .HasColumnName("file_type");
             entity.Property(e => e.PathFile).HasColumnName("path_file");
             entity.Property(e => e.UploadedDate)
@@ -164,17 +162,15 @@ public partial class MessengerContext : DbContext
             entity.Property(e => e.UsrId).HasColumnName("usr_id");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
-                .IsFixedLength()
                 .HasColumnName("email");
             entity.Property(e => e.Login)
                 .HasMaxLength(50)
-                .IsFixedLength()
                 .HasColumnName("login");
             entity.Property(e => e.PasswordHash).HasColumnName("password_hash");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
-                .IsFixedLength()
                 .HasColumnName("status");
+            entity.HasIndex(e => e.Email).IsUnique();
             
                 // контакты
                 entity.HasMany(d => d.Contacts)

@@ -1,4 +1,5 @@
 ﻿using Backend.Configuration;
+using Backend.DTOs;
 using Backend.Interfaces.Repositories;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
@@ -44,5 +45,33 @@ public class UserRepository : IUserRepository
             .Usrs
             .Include(u => u.Contacts)
             .FirstOrDefaultAsync(u => u.UsrId == userId);
+    }
+
+    public async Task<List<ContactDto>> GetContactsById(int userId)
+    {
+        var user = await _dbContext
+            .Usrs
+            .Include(u => u.Contacts)
+            .FirstOrDefaultAsync(u => u.UsrId == userId);
+        
+        return user?.Contacts.Select(c => new ContactDto 
+            { 
+                UsrId = c.UsrId, 
+                Login = c.Login 
+            }).ToList() ?? new List<ContactDto>();
+    }
+
+    public async Task<List<ContactDto>> GetBlockedContacts(int userId)
+    {
+        var user = await _dbContext
+            .Usrs
+            .Include(u => u.BlockedUsers)
+            .FirstOrDefaultAsync(u => u.UsrId == userId);
+        
+        return user?.BlockedUsers.Select(c => new ContactDto
+        {
+            UsrId = c.UsrId,
+            Login = c.Login
+        }).ToList() ?? new List<ContactDto>();
     }
 }

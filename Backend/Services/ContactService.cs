@@ -1,4 +1,5 @@
 ﻿using Backend.Configuration;
+using Backend.DTOs;
 using Backend.Interfaces.Auth;
 using Backend.Interfaces.Repositories;
 using Backend.Models;
@@ -30,9 +31,6 @@ public class ContactService
         
         var user = await _userRepository.GetUserWithContactsById(userId);
         var contactUser = await _userRepository.GetUserWithContactsById(contactId);
-        /* Необходимо исправить не правильно создаются записи в таблицах, разобраться как работать
-        через EF core со связью многие ко многим без явной модели в БД */
-        
         
         user.Contacts.Add(contactUser);
         
@@ -40,23 +38,85 @@ public class ContactService
         
     }
 
-    public async Task DeleteContact()
+    public async Task DeleteContact(int contactId)
     {
+        var userId = _getUserFromClaims.UserFromClaimsFromHeaders();
+
+        if (!await _userRepository.UserExists(contactId) || !await _userRepository.UserExists(userId))
+        {
+            throw new Exception("Ошибка удаления контакта");
+        }
+        var user = await _userRepository.GetUserWithContactsById(contactId);
+        var contactUser = await _userRepository.GetUserWithContactsById(contactId);
+        
+        user.Contacts.Remove(contactUser);
+        
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<List<ContactDto>> GetContacts()
+    {
+        var userId = _getUserFromClaims.UserFromClaimsFromHeaders();
+
+        if (!await _userRepository.UserExists(userId))
+        {
+            throw new Exception("Ошибка получения контактов");
+        }
+        
+        var contacts = await _userRepository.GetContactsById(userId);
+        
+        return contacts;
         
     }
 
-    public async Task GetContacts()
+    public async Task BlockContact(int contactId)
     {
+        var userId = _getUserFromClaims.UserFromClaimsFromHeaders();
+
+        if (!await _userRepository.UserExists(contactId) || !await _userRepository.UserExists(userId))
+        {
+            throw new Exception("Ошибка блокировки контакта");
+        }
         
+        var user = await _userRepository.GetUserWithContactsById(userId);
+        var contactUser = await _userRepository.GetUserWithContactsById(contactId);
+        
+        user.Contacts.Remove(contactUser);
+        
+        user.BlockedUsers.Add(contactUser);
+        
+        await _dbContext.SaveChangesAsync();
     }
 
-    public async Task BlockContact()
+    public async Task UnblockContact(int contactId)
     {
+        var userId = _getUserFromClaims.UserFromClaimsFromHeaders();
+
+        if (!await _userRepository.UserExists(contactId) || !await _userRepository.UserExists(userId))
+        {
+            throw new Exception("Ошибка разблокировки контакта");
+        }
         
+        var user = await _userRepository.GetUserWithContactsById(userId);
+        var contactUser = await _userRepository.GetUserWithContactsById(contactId);
+        
+        user.BlockedUsers.Remove(contactUser);
+        
+        await _dbContext.SaveChangesAsync();
     }
 
-    public async Task UnblockContact()
+    public async Task<List<ContactDto>> GetBlockedContacts()
     {
+        var userId = _getUserFromClaims.UserFromClaimsFromHeaders();
+
+        if (!await _userRepository.UserExists(userId))
+        {
+            throw new Exception("Ошибка получения списка блокировки");
+        }
+        
+        var blockedContacts = await _userRepository.GetBlockedContacts(userId);
+        
+        return blockedContacts;
         
     }
     

@@ -11,13 +11,13 @@ public static class ContactsEndpoint
        
        app.MapPost("add_contact/{contactId}", AddContact);
        
-       app.MapDelete("delete_contact", DeleteContact);
+       app.MapDelete("delete_contact/{contactId}", DeleteContact);
        
        app.MapGet("get_contacts", GetContacts);
 
-       app.MapPost("block_contact", BlockContact);
+       app.MapPost("block_contact/{contactId}", BlockContact);
        
-       app.MapDelete("unblock_contact", UnblockContact);
+       app.MapDelete("unblock_contact{contactId}", UnblockContact);
        
        app.MapGet("get_blocked_contacts", GetBlockedContacts);
        
@@ -30,28 +30,33 @@ public static class ContactsEndpoint
         return Results.Ok();
     }
 
-    private static async Task<IResult> DeleteContact()
+    private static async Task<IResult> DeleteContact(ContactService service, [FromRoute] int contactId)
     {
+        await service.DeleteContact(contactId);
         return Results.Ok();
     }
 
-    private static async Task<IResult> GetContacts()
+    private static async Task<IResult> GetContacts(ContactService service)
     {
+        var contacts = await service.GetContacts();
+        return Results.Ok(contacts);
+    }
+
+    private static async Task<IResult> BlockContact(ContactService service, [FromRoute] int contactId)
+    {
+        await service.BlockContact(contactId);
         return Results.Ok();
     }
 
-    private static async Task<IResult> BlockContact()
+    private static async Task<IResult> UnblockContact(ContactService service, [FromRoute] int contactId)
     {
+        await service.UnblockContact(contactId);
         return Results.Ok();
     }
 
-    private static async Task<IResult> UnblockContact()
+    private static async Task<IResult> GetBlockedContacts(ContactService service)
     {
-        return Results.Ok();
-    }
-
-    private static async Task<IResult> GetBlockedContacts()
-    {
-        return Results.Ok();
+        var blockedContacts = await service.GetBlockedContacts();
+        return Results.Ok(blockedContacts);
     }
 }
