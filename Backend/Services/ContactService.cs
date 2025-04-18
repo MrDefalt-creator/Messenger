@@ -23,26 +23,21 @@ public class ContactService
     {
         var userId = _getUserFromClaims.UserFromClaimsFromHeaders();
 
-        if (!await _userRepository.UserExists(contactId))
+        if (!await _userRepository.UserExists(contactId) || !await _userRepository.UserExists(userId))
         {
-            throw new Exception("Добавляемый в контакты пользователь не найден");
+            throw new Exception("Ошибка добавления в контакты");
         }
         
         var user = await _userRepository.GetUserWithContactsById(userId);
         var contactUser = await _userRepository.GetUserWithContactsById(contactId);
         /* Необходимо исправить не правильно создаются записи в таблицах, разобраться как работать
         через EF core со связью многие ко многим без явной модели в БД */
-        var contact = new Contact
-        {
-            ContactUser = user
-        };
         
-        contact.Usrs.Add(contactUser);
         
-        user.ContactsNavigation.Add(contact);
-
+        user.Contacts.Add(contactUser);
+        
         await _dbContext.SaveChangesAsync();
-
+        
     }
 
     public async Task DeleteContact()

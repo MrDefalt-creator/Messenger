@@ -42,8 +42,7 @@ public class UserRepository : IUserRepository
     {
         return await _dbContext
             .Usrs
-            .Include(u => u.ContactsNavigation)
-            .ThenInclude(c => c.Usrs)
+            .Include(u => u.Contacts)
             .FirstOrDefaultAsync(u => u.UsrId == userId);
     }
 }

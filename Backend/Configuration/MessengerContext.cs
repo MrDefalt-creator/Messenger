@@ -2,42 +2,33 @@
 using System.Collections.Generic;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using File = Backend.Models.File;
 
 namespace Backend.Configuration;
 
-public partial class MessengerContext(DbContextOptions<MessengerContext> options) : DbContext(options)
+public partial class MessengerContext : DbContext
 {
-    public virtual DbSet<BlockList> BlockLists { get; set; }
+    public MessengerContext()
+    {
+    }
+
+    public MessengerContext(DbContextOptions<MessengerContext> options)
+        : base(options)
+    {
+    }
 
     public virtual DbSet<Chat> Chats { get; set; }
-
-    public virtual DbSet<Contact> Contacts { get; set; }
 
     public virtual DbSet<File> Files { get; set; }
 
     public virtual DbSet<Message> Messages { get; set; }
 
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+
     public virtual DbSet<Usr> Usrs { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<BlockList>(entity =>
-        {
-            entity.HasKey(e => e.BlockListId).HasName("block_list_pkey");
-
-            entity.ToTable("block_list");
-
-            entity.Property(e => e.BlockListId).HasColumnName("block_list_id");
-            entity.Property(e => e.BlockUserId).HasColumnName("block_user_id");
-
-            entity.HasOne(d => d.BlockUser).WithMany(p => p.BlockLists)
-                .HasForeignKey(d => d.BlockUserId)
-                .HasConstraintName("block_list_block_user_id_fkey");
-        });
-
         modelBuilder.Entity<Chat>(entity =>
         {
             entity.HasKey(e => e.ChatId).HasName("chat_pkey");
@@ -73,20 +64,6 @@ public partial class MessengerContext(DbContextOptions<MessengerContext> options
                         j.IndexerProperty<int>("ChatId").HasColumnName("chat_id");
                         j.IndexerProperty<int>("FileId").HasColumnName("file_id");
                     });
-        });
-
-        modelBuilder.Entity<Contact>(entity =>
-        {
-            entity.HasKey(e => e.ContactsId).HasName("contacts_pkey");
-
-            entity.ToTable("contacts");
-
-            entity.Property(e => e.ContactsId).HasColumnName("contacts_id");
-            entity.Property(e => e.ContactUserId).HasColumnName("contact_user_id");
-
-            entity.HasOne(d => d.ContactUser).WithMany(p => p.Contacts)
-                .HasForeignKey(d => d.ContactUserId)
-                .HasConstraintName("contacts_contact_user_id_fkey");
         });
 
         modelBuilder.Entity<File>(entity =>
@@ -165,9 +142,7 @@ public partial class MessengerContext(DbContextOptions<MessengerContext> options
             entity.ToTable("refresh_tokens");
 
             entity.Property(e => e.TokenId).HasColumnName("token_id");
-            entity.Property(e => e.CreatedAt)
-                .HasColumnType("timestamp with time zone")
-                .HasColumnName("created_at");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
             entity.Property(e => e.IsRevoked)
                 .HasDefaultValue(false)
                 .HasColumnName("is_revoked");
@@ -195,71 +170,64 @@ public partial class MessengerContext(DbContextOptions<MessengerContext> options
                 .HasMaxLength(50)
                 .IsFixedLength()
                 .HasColumnName("login");
-            entity.Property(e => e.PasswordHash)
-                .HasMaxLength(100)
-                .IsFixedLength()
-                .HasColumnName("password_hash");
+            entity.Property(e => e.PasswordHash).HasColumnName("password_hash");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .IsFixedLength()
                 .HasColumnName("status");
+            
+                // контакты
+                entity.HasMany(d => d.Contacts)
+                    .WithMany(p => p.ContactOf)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "UserContact",
+                        j => j.HasOne<Usr>().WithMany().HasForeignKey("ContactId")
+                            .HasConstraintName("user_contact_contact_id_fkey"),
+                        j => j.HasOne<Usr>().WithMany().HasForeignKey("UserId")
+                            .HasConstraintName("user_contact_user_id_fkey"),
+                        j =>
+                        {
+                            j.HasKey("UserId", "ContactId").HasName("user_contact_pkey");
+                            j.ToTable("user_contact");
+                            j.IndexerProperty<int>("UserId").HasColumnName("user_id");
+                            j.IndexerProperty<int>("ContactId").HasColumnName("contact_id");
+                        });
 
-            entity.HasMany(d => d.BlockListsNavigation).WithMany(p => p.Usrs)
-                .UsingEntity<Dictionary<string, object>>(
-                    "UsrBlockList",
-                    r => r.HasOne<BlockList>().WithMany()
-                        .HasForeignKey("BlockListId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("usr_block_list_block_list_id_fkey"),
-                    l => l.HasOne<Usr>().WithMany()
-                        .HasForeignKey("UsrId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("usr_block_list_usr_id_fkey"),
-                    j =>
-                    {
-                        j.HasKey("UsrId", "BlockListId").HasName("usr_block_list_pkey");
-                        j.ToTable("usr_block_list");
-                        j.IndexerProperty<int>("UsrId").HasColumnName("usr_id");
-                        j.IndexerProperty<int>("BlockListId").HasColumnName("block_list_id");
-                    });
+                // Блокировки
+                entity.HasMany(d => d.BlockedUsers)
+                    .WithMany(p => p.BlockedBy)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "UserBlock",
+                        j => j.HasOne<Usr>().WithMany().HasForeignKey("BlockedUserId")
+                            .HasConstraintName("user_block_blocked_user_id_fkey"),
+                        j => j.HasOne<Usr>().WithMany().HasForeignKey("UserId")
+                            .HasConstraintName("user_block_user_id_fkey"),
+                        j =>
+                        {
+                            j.HasKey("UserId", "BlockedUserId").HasName("user_block_pkey");
+                            j.ToTable("user_block");
+                            j.IndexerProperty<int>("UserId").HasColumnName("user_id");
+                            j.IndexerProperty<int>("BlockedUserId").HasColumnName("blocked_user_id");
+                        });
 
-            entity.HasMany(d => d.ChatsNavigation).WithMany(p => p.Usrs)
-                .UsingEntity<Dictionary<string, object>>(
-                    "UserChat",
-                    r => r.HasOne<Chat>().WithMany()
-                        .HasForeignKey("ChatId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("user_chat_chat_id_fkey"),
-                    l => l.HasOne<Usr>().WithMany()
-                        .HasForeignKey("UsrId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("user_chat_usr_id_fkey"),
-                    j =>
-                    {
-                        j.HasKey("UsrId", "ChatId").HasName("user_chat_pkey");
-                        j.ToTable("user_chat");
-                        j.IndexerProperty<int>("UsrId").HasColumnName("usr_id");
-                        j.IndexerProperty<int>("ChatId").HasColumnName("chat_id");
-                    });
-
-            entity.HasMany(d => d.ContactsNavigation).WithMany(p => p.Usrs)
-                .UsingEntity<Dictionary<string, object>>(
-                    "UserContact",
-                    r => r.HasOne<Contact>().WithMany()
-                        .HasForeignKey("ContactsId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("user_contacts_contacts_id_fkey"),
-                    l => l.HasOne<Usr>().WithMany()
-                        .HasForeignKey("UsrId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("user_contacts_usr_id_fkey"),
-                    j =>
-                    {
-                        j.HasKey("UsrId", "ContactsId").HasName("user_contacts_pkey");
-                        j.ToTable("user_contacts");
-                        j.IndexerProperty<int>("UsrId").HasColumnName("usr_id");
-                        j.IndexerProperty<int>("ContactsId").HasColumnName("contacts_id");
-                    });
+                entity.HasMany(d => d.ChatsNavigation).WithMany(p => p.Usrs)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "UserChat",
+                        r => r.HasOne<Chat>().WithMany()
+                            .HasForeignKey("ChatId")
+                            .OnDelete(DeleteBehavior.ClientSetNull)
+                            .HasConstraintName("user_chat_chat_id_fkey"),
+                        l => l.HasOne<Usr>().WithMany()
+                            .HasForeignKey("UsrId")
+                            .OnDelete(DeleteBehavior.ClientSetNull)
+                            .HasConstraintName("user_chat_usr_id_fkey"),
+                        j =>
+                        {
+                            j.HasKey("UsrId", "ChatId").HasName("user_chat_pkey");
+                            j.ToTable("user_chat");
+                            j.IndexerProperty<int>("UsrId").HasColumnName("usr_id");
+                            j.IndexerProperty<int>("ChatId").HasColumnName("chat_id");
+                        });
         });
 
         OnModelCreatingPartial(modelBuilder);

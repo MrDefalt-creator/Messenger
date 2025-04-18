@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Models;
 
 public partial class Usr
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int UsrId { get; set; }
 
     public string? Login { get; set; }
@@ -17,21 +15,30 @@ public partial class Usr
 
     public string? Status { get; set; }
 
-    public virtual ICollection<BlockList> BlockLists { get; set; } = new List<BlockList>();
-
+    // Чаты, созданные пользователем (init_sender)
     public virtual ICollection<Chat> Chats { get; set; } = new List<Chat>();
 
-    public virtual ICollection<Contact> Contacts { get; set; } = new List<Contact>();
-
-    public virtual ICollection<File> Files { get; set; } = new List<File>();
-
-    public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
-
-    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
-
-    public virtual ICollection<BlockList> BlockListsNavigation { get; set; } = new List<BlockList>();
-
+    // Чаты, в которых участвует пользователь (через chat_participant)
     public virtual ICollection<Chat> ChatsNavigation { get; set; } = new List<Chat>();
 
-    public virtual ICollection<Contact> ContactsNavigation { get; set; } = new List<Contact>();
+    // Загруженные файлы
+    public virtual ICollection<File> Files { get; set; } = new List<File>();
+
+    // Отправленные сообщения
+    public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
+
+    // Refresh токены
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
+    // Контакты, которых добавил пользователь
+    public virtual ICollection<Usr> Contacts { get; set; } = new List<Usr>();
+
+    // Пользователи, у которых текущий пользователь находится в контактах
+    public virtual ICollection<Usr> ContactOf { get; set; } = new List<Usr>();
+
+    // Пользователи, которых текущий пользователь заблокировал
+    public virtual ICollection<Usr> BlockedUsers { get; set; } = new List<Usr>();
+
+    // Пользователи, которые заблокировали текущего пользователя
+    public virtual ICollection<Usr> BlockedBy { get; set; } = new List<Usr>();
 }
